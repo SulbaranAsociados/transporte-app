@@ -1,0 +1,3 @@
+,id,lunes,martes,miercoles,jueves,viernes,sabado,domingo
+,laborable,true,true,true,true,true,false,false
+,diario,true,true,true,true,true,true,true

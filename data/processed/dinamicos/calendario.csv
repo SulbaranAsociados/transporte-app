@@ -1,0 +1,23 @@
+,id,lunes,martes,miercoles,jueves,viernes,sabado,domingo,fecha_inicio,fecha_fin
+,anual_lab,true,true,true,true,true,false,false,01/01/2026,31/12/2026
+,anual_sab,false,false,false,false,false,true,false,01/01/2027,31/12/2027
+,anual_dom_fest,false,false,false,false,false,false,true,01/01/2028,31/12/2028
+,74_diario,true,true,true,true,true,true,true,30/03/26,31/10/26
+,4_lab,true,true,true,true,true,false,false,30/03/26,31/10/26
+,4_sab_dom_fest,false,false,false,false,false,true,true,30/03/26,31/10/26
+,L39_diario,true,true,true,true,true,true,true,22/06/26,07/09/26
+,L39_laborables,true,true,true,true,true,false,false,22/06/26,07/09/26
+,aeroport de Reus,true,true,true,true,true,true,true,01/07/26,31/07/26
+,ave,true,true,true,true,true,true,true,01/06/26,30/09/26
+,prat,true,true,true,true,true,true,true,01/05/26,01/11/26
+,julio y agosto,true,true,true,true,true,true,true,01/07/26,31/08/26
+,anual,true,true,true,true,true,true,true,01/01/2026,31/12/2026
+,martes_y_jueves,false,true,false,true,false,false,false,01/07/26,31/08/26
+,lunes,true,false,false,false,false,false,false,01/07/26,31/08/26
+,martes ,false,true,false,false,false,false,false,01/07/26,31/08/26
+,miercoles,false,false,true,false,false,false,false,01/07/26,31/08/26
+,jueves,false,false,false,true,false,false,false,01/07/26,31/08/26
+,viernes,false,false,false,false,true,false,false,01/07/26,31/08/26
+,sabados,false,false,false,false,false,true,false,01/07/26,31/08/26
+,domingos,false,false,false,false,false,false,true,01/07/26,31/08/26
+,L11,true,true,true,true,true,false,false,01/09/26,30/06/27

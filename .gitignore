@@ -1,0 +1,15 @@
+# Node
+node_modules/
+npm-debug.log
+
+# Environment
+.env
+
+# OS
+.DS_Store
+*.swp
+
+# Supabase Local Development
+supabase/.temp
+supabase/.output
+supabase/.env

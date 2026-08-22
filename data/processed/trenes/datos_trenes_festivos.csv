@@ -1,0 +1,13 @@
+,id,fecha,nombre,ámbito,tipo_dia,año,activo
+,1,2026-01-01,Año Nuevo,España,festivo,2026,true
+,2,2026-01-06,Epifanía del Señor,España,festivo,2026,true
+,3,2026-04-03,Viernes Santo,España,festivo,2026,true
+,4,2026-04-06,Lunes de Pascua,Catalunya,festivo,2026,true
+,5,2026-05-01,Fiesta del Trabajo,España,festivo,2026,true
+,6,2026-06-24,Sant Joan,Catalunya,festivo,2026,true
+,7,2026-08-15,La Asunción,España,festivo,2026,true
+,8,2026-09-11,Diada Nacional de Catalunya,Catalunya,festivo,2026,true
+,9,2026-10-12,Fiesta Nacional de España,España,festivo,2026,true
+,10,2026-12-08,Inmaculada Concepción,España,festivo,2026,true
+,11,2026-12-25,Navidad,España,festivo,2026,true
+,12,2026-12-26,Sant Esteve,Catalunya,festivo,2026,true
