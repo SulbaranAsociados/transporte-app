@@ -1,0 +1,11 @@
+name: transporte_vilaseca
+type: docker
+build:
+  dockerfile: Dockerfile
+deploy:
+  port: 80
+  healthcheck:
+    type: http
+    path: /
+domains:
+  - vilaseca.losabe.es
