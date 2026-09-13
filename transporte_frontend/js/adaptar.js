@@ -13,7 +13,7 @@
 
     document.body.style.display = 'flex';
     document.body.style.flexDirection = 'column';
-    document.body.style.justifyContent = 'center';
+    document.body.style.justifyContent = 'flex-start';
     document.body.style.alignItems = 'center';
     document.body.style.width = '100vw';
     document.body.style.height = DESIGN_H * escala + 'px';
