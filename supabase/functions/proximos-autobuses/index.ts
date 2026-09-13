@@ -80,6 +80,20 @@ serve(async (req) => {
   const { hoy, diaSemana } = calcularDiaActual()
   const ahoraMins = horaEnMinutosLocal()
 
+  // Nombre de la parada
+  const { data: paradaInfo, error: errParada } = await supabase
+    .from('paradas')
+    .select('id_parada, nombre')
+    .eq('id_parada', paradaId)
+    .maybeSingle()
+
+  if (errParada) {
+    return new Response(JSON.stringify({ error: errParada.message }), {
+      status: 400,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+  }
+
   // ¿Día festivo?
   const { data: festivos, error: errFestivos } = await supabase
     .from('festivos')
@@ -118,7 +132,7 @@ serve(async (req) => {
   const rutaIds = Object.keys(desfases)
 
   if (rutaIds.length === 0) {
-    return new Response(JSON.stringify({ found: false, parada_id: paradaId, autobuses: [] }), {
+    return new Response(JSON.stringify({ found: false, parada_id: paradaId, parada_nombre: paradaInfo ? paradaInfo.nombre : null, autobuses: [] }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   }
@@ -197,6 +211,7 @@ serve(async (req) => {
     JSON.stringify({
       found: autobuses.length > 0,
       parada_id: paradaId,
+      parada_nombre: paradaInfo ? paradaInfo.nombre : null,
       dia: jornada,
       festivo: esFestivo,
       autobuses: autobuses.slice(0, 4),

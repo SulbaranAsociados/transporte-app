@@ -141,6 +141,8 @@
           query: { parada_id: paradaId },
         });
 
+        nombreParada.textContent = data.parada_nombre || paradaId;
+
         if (!data.found || (data.autobuses || []).length === 0) {
           horaSalida.textContent = '--:--';
           faltan.textContent = '--:--';
