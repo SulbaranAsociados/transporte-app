@@ -61,6 +61,22 @@
       <iframe id="mapaFrame" class="w-full h-full" frameborder="0" style="border:0"></iframe>
     </div>
 
+    <!-- Ampliar mapa -->
+    <div class="absolute left-[150px] top-[670px]">
+      <button id="btnAmpliar" type="button" class="text-[#808080] text-sm font-semibold underline">Ampliar mapa</button>
+    </div>
+
+    <!-- Overlay mapa a pantalla completa -->
+    <div id="mapaOverlay" class="fixed inset-0 z-50 bg-black/60 hidden" style="display:none">
+      <div class="w-full h-full relative flex items-center justify-center">
+        <iframe id="mapaOverlayFrame" class="w-full h-full" frameborder="0" style="border:0"></iframe>
+        <button id="btnCerrarMapa" type="button"
+                class="absolute top-4 right-4 z-50 w-10 h-10 rounded-full bg-white/90 flex items-center justify-center shadow-lg text-xl font-bold text-gray-700">
+          ✕
+        </button>
+      </div>
+    </div>
+
     <!-- Para ver la hora... -->
     <div class="absolute left-[70px] top-[690px] text-center">
       <span class="text-[#808080] font-archivo text-base block">Para ver la hora de llegada del autobus</span>
@@ -109,9 +125,24 @@
         const parada = r.parada;
         nombreParada.textContent = parada.nombre;
 
-        const z = 15;
+        const z = 17;
         const mapa = `https://maps.google.com/maps?saddr=${userLat},${userLng}&daddr=${parada.latitud},${parada.longitud}&z=${z}&output=embed`;
         mapaFrame.src = mapa;
+
+        const mapaOverlayFrame = document.getElementById('mapaOverlayFrame');
+        const mapaOverlay = document.getElementById('mapaOverlay');
+        const btnAmpliar = document.getElementById('btnAmpliar');
+        const btnCerrarMapa = document.getElementById('btnCerrarMapa');
+
+        btnAmpliar.addEventListener('click', () => {
+          mapaOverlayFrame.src = mapa;
+          mapaOverlay.style.display = 'flex';
+        });
+
+        btnCerrarMapa.addEventListener('click', () => {
+          mapaOverlay.style.display = 'none';
+          mapaOverlayFrame.src = '';
+        });
 
         btnContinuar.addEventListener('click', () => {
           window.location.href = `Horario-bus.html?parada_id=${encFrame(parada.id_parada)}`;
