@@ -125,8 +125,7 @@
         const parada = r.parada;
         nombreParada.textContent = parada.nombre;
 
-        const z = 17;
-        const mapa = `https://maps.google.com/maps?saddr=${userLat},${userLng}&daddr=${parada.latitud},${parada.longitud}&z=${z}&output=embed`;
+        const mapa = `https://maps.google.com/maps?saddr=${userLat},${userLng}&daddr=${parada.latitud},${parada.longitud}&output=embed`;
         mapaFrame.src = mapa;
 
         const mapaOverlayFrame = document.getElementById('mapaOverlayFrame');
