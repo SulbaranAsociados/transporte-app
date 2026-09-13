@@ -18,11 +18,16 @@
 
     var contenedor = frame.parentElement;
     if (contenedor) {
-      contenedor.style.width = DESIGN_W + 'px';
+      contenedor.style.width = '100vw';
       contenedor.style.height = DESIGN_H * escala + 'px';
-      contenedor.style.margin = '0 auto';
       contenedor.style.overflow = 'hidden';
+      contenedor.style.margin = '0 auto';
     }
+
+    document.body.style.maxWidth = '100vw';
+    document.body.style.overflowX = 'hidden';
+    document.body.style.display = 'flex';
+    document.body.style.justifyContent = 'center';
   }
 
   window.addEventListener('resize', ajustar);
