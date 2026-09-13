@@ -182,7 +182,11 @@ serve(async (req) => {
     })
   }
   const rutasInfo = {}
-  for (const r of rutas || []) rutasInfo[r.id_ruta] = r
+  const rutasFiltradas = new Set()
+  for (const r of rutas || []) {
+    rutasInfo[r.id_ruta] = r
+    rutasFiltradas.add(r.id_ruta)
+  }
 
   const numeroDe = (nombre) => {
     const m = (nombre || '').match(/Autobus\s+([0-9]+)/i)
@@ -193,6 +197,7 @@ serve(async (req) => {
   const vistos = new Set()
   const autobuses = []
   for (const s of salidas || []) {
+    if (!rutasFiltradas.has(s.ruta_id)) continue
     const clave = `${s.ruta_id}|${s.salida_origen}|${s.tipo_dia}`
     if (vistos.has(clave)) continue
     vistos.add(clave)
