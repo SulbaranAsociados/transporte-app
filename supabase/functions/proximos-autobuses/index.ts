@@ -62,12 +62,15 @@ serve(async (req) => {
   )
 
   let paradaId
+  let destino
   try {
     const body = await req.json()
     paradaId = (body.parada_id || '').trim()
+    destino = (body.destino || '').trim()
   } catch {
     const url = new URL(req.url)
     paradaId = (url.searchParams.get('parada_id') || '').trim()
+    destino = (url.searchParams.get('destino') || '').trim()
   }
 
   if (!paradaId) {
@@ -165,10 +168,12 @@ serve(async (req) => {
   }
 
   // 4. Nombre y destino de las rutas
-  const { data: rutas, error: errRutas } = await supabase
+  let rutasQuery = supabase
     .from('rutas')
     .select('id_ruta, nombre, destino, origen')
     .in('id_ruta', rutaIds)
+  if (destino) rutasQuery = rutasQuery.eq('destino', destino)
+  const { data: rutas, error: errRutas } = await rutasQuery
 
   if (errRutas) {
     return new Response(JSON.stringify({ error: errRutas.message }), {

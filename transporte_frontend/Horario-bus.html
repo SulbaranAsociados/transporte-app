@@ -108,6 +108,7 @@
   <script>
     const params = new URLSearchParams(window.location.search);
     const paradaId = params.get('parada_id');
+    const destino = params.get('destino');
 
     const nombreParada = document.getElementById('nombreParada');
     const horaSalida = document.getElementById('horaSalida');
@@ -137,9 +138,9 @@
       nombreParada.textContent = paradaId;
 
       try {
-        const data = await llamarFuncion('proximos-autobuses', {
-          query: { parada_id: paradaId },
-        });
+        const query = { parada_id: paradaId };
+        if (destino) query.destino = destino;
+        const data = await llamarFuncion('proximos-autobuses', { query });
 
         nombreParada.textContent = data.parada_nombre || paradaId;
 
