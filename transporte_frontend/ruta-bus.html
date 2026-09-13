@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ruta Bus</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400;500&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Source Sans 3"', 'sans-serif'],
+            narrow: ['"Archivo Narrow"', 'sans-serif'],
+          },
+          colors: {
+            app: {
+              bg: '#e6e6e6',
+              input: '#ebebeb',
+              border: '#bfbebe',
+              logo: '#B1B2B5',
+              gray: '#808080',
+              green: '#84b648',
+            }
+          },
+          boxShadow: {
+            'neu': '8px -8px 8px 2px rgba(255,255,255,0.4), -8px 8px 9px 2px rgba(0,0,0,0.15)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { -webkit-font-smoothing: antialiased; }
+  </style>
+</head>
+<body class="bg-app-bg flex justify-center min-h-screen">
+
+  <div class="w-full max-w-[430px] min-h-[932px] relative overflow-hidden">
+
+    <!-- Logo -->
+    <div class="absolute left-[125px] top-[44px]">
+      <img src="logo.png" alt="Transporte" class="w-[179px] h-[90px] object-contain">
+    </div>
+
+    <!-- Ruta label -->
+    <div class="absolute left-[194px] top-[226px]">
+      <span class="text-app-gray text-[24px] font-medium font-narrow">Ruta:</span>
+    </div>
+
+    <!-- Rectangle area -->
+    <div class="absolute left-[37px] top-[264px]">
+      <div class="w-[357px] h-[510px] bg-app-input border border-app-border rounded-[30px] px-8 flex flex-col items-center justify-center gap-2">
+        <span class="text-app-gray text-lg font-narrow">[Parada 1] / 00:00</span>
+        <span class="text-app-gray text-lg font-narrow">[Parada 2] / 00:00</span>
+        <span class="text-app-gray text-lg font-narrow">[Parada 3] / 00:00</span>
+        <span class="text-app-gray text-lg font-narrow">[Parada 4] / 00:00</span>
+        <span class="text-app-gray text-lg font-narrow">[Parada 5] / 00:00</span>
+      </div>
+    </div>
+
+    <!-- Labels -->
+    <div class="absolute right-[215px] top-[149px]">
+      <div class="flex flex-col gap-0.5 text-right">
+        <span class="text-app-gray text-base font-narrow leading-tight">Destino:</span>
+        <span class="text-app-gray text-base font-narrow leading-tight">Autobus:</span>
+        <span class="text-app-gray text-base font-narrow leading-tight">Hora de Salida:</span>
+      </div>
+    </div>
+
+    <!-- Valores de la consulta -->
+    <div class="absolute left-[224px] top-[149px]">
+      <div class="flex flex-col gap-0.5 text-left">
+        <span class="text-app-gray text-base font-narrow font-medium leading-tight">Población</span>
+        <span class="text-app-gray text-base font-narrow font-medium leading-tight">000000</span>
+        <span class="text-app-gray text-base font-narrow font-medium leading-tight">00:00</span>
+      </div>
+    </div>
+
+    <!-- Botón Anterior -->
+    <div class="absolute left-[155px] top-[802px]">
+      <button class="w-[130px] h-[45px] bg-app-bg rounded-[20px] shadow-neu
+                     flex items-center justify-center gap-2">
+        <svg class="w-4 h-3.5 text-app-gray" viewBox="0 0 14 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0.5 6H12.5M0.5 6L5.5 1M0.5 6L5.5 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="text-app-gray text-base font-narrow">Anterior</span>
+      </button>
+    </div>
+
+    <!-- Footer -->
+    <div class="absolute left-[134px] top-[875px]">
+      <span class="text-app-gray text-base font-sans">Información y Contacto</span>
+    </div>
+
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Escanear Código QR</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg: '#e6e6e6',
+            gray: '#808080',
+            logo: '#B1B2B5',
+            green: '#81b544',
+          },
+          fontFamily: {
+            sans: ['"Roboto Condensed"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      -webkit-font-smoothing: antialiased;
+      background-color: #e6e6e6;
+    }
+    .neumorphic {
+      background: #e6e6e6;
+      box-shadow: 8px -8px 8px 2px rgba(255,255,255,0.4), -8px 8px 9px 2px rgba(0,0,0,0.15);
+      border-radius: 20px;
+    }
+  </style>
+</head>
+<body class="flex justify-center min-h-screen">
+
+  <div class="w-full max-w-[430px] min-h-[932px] relative">
+
+    <!-- Logo -->
+    <img src="logo.png" alt="Transporte" class="absolute left-[126px] top-[45px] w-[179px] h-[90px] object-contain">
+
+    <!-- Título -->
+    <div class="absolute top-[146px] w-full text-center">
+      <span class="text-[#808080] font-sans text-lg">Escanea el código QR</span>
+    </div>
+
+    <!-- Instrucciones -->
+    <div class="absolute left-[40px] top-[182px] w-[350px] text-center">
+      <span class="text-[#5f5f5f] font-sans text-sm">
+        Apunte la cámara al código QR de la parada o estación para ver sus horarios.
+      </span>
+    </div>
+
+    <!-- Cámara / visor -->
+    <div id="qrBox" class="absolute left-[40px] top-[215px] w-[350px] h-[262px] bg-white rounded-sm overflow-hidden flex items-center justify-center">
+      <div id="reader" class="w-full h-full"></div>
+      <!-- Estado -->
+      <div id="qrStatus" class="absolute inset-0 flex flex-col items-center justify-center gap-3 p-4 text-center"></div>
+    </div>
+
+    <!-- Entrada manual (fallback si no hay cámara) -->
+    <div id="manualBox" class="absolute left-[40px] top-[495px] w-[350px] hidden">
+      <form id="manualForm" class="flex gap-2">
+        <input
+          id="manualCode"
+          type="text"
+          placeholder="O introduzca el enlace del QR"
+          class="flex-1 h-[36px] bg-white border border-[#bfbebe] rounded-xl px-3 text-sm text-black outline-none"
+        >
+        <button type="submit" class="neumorphic w-[70px] h-[36px] flex items-center justify-center">
+          <span class="text-[#808080] font-sans text-sm">Ir</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- Botón Anterior -->
+    <div class="absolute left-[150px] top-[549px]">
+      <button id="btnVolver" class="neumorphic w-[130px] h-[45px] flex items-center justify-center gap-2" onclick="history.back()">
+        <svg class="w-[14px] h-[12px] text-[#808080]" viewBox="0 0 14 12" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4.12 0.12C4.41 0.14 4.69 0.26 4.9 0.5C5.35 0.99 5.31 1.82 4.91 2.36L3.03 4.92H12.92C13.52 4.92 14 5.41 14 6.01C14 6.36 13.88 6.69 13.68 6.94C13.48 7.18 13.2 7.32 12.92 7.32H3.03L4.91 9.88C5.31 10.42 5.35 11.25 4.91 11.74C4.46 12.23 3.78 12.18 3.38 11.64L0.62 7.91C0.19 7.33 0 6.64 0.19 6C0.39 5.31 0.78 4.75 1.3 4.38L3.37 1.29C3.57 1.03 3.84 0.87 4.12 0.85V0.12Z" fill="#808080"/>
+        </svg>
+        <span class="text-[#808080] font-sans text-base">Anterior</span>
+      </button>
+    </div>
+
+    <!-- Footer -->
+    <div class="absolute left-[134px] top-[878px]">
+      <span class="text-[#808080] font-sans text-base">Información y Contacto</span>
+    </div>
+
+  </div>
+
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <script>
+    const status = document.getElementById('qrStatus');
+    const manualBox = document.getElementById('manualBox');
+    const manualCode = document.getElementById('manualCode');
+    const manualForm = document.getElementById('manualForm');
+
+    const pintarEstado = (html) => {
+      status.innerHTML = html;
+    };
+
+    const navegar = (texto) => {
+      const valor = (texto || '').trim();
+      if (!valor) {
+        errorDecodificacion('El código no contiene información legible.');
+        return;
+      }
+      try {
+        const url = new URL(valor, window.location.href);
+        if (url.origin === window.location.origin || /^https?:/i.test(valor)) {
+          window.location.href = url.href;
+        } else {
+          window.location.href = url.href;
+        }
+      } catch (e) {
+        errorDecodificacion('No se pudo interpretar el código: ' + valor);
+      }
+    };
+
+    const errorDecodificacion = (mensaje) => {
+      if (html5QrCode && html5QrCode.isScanning) {
+        try { html5QrCode.stop().catch(() => {}); } catch (e) {}
+      }
+      pintarEstado(`
+        <span class="text-red-500 font-sans text-sm">${mensaje}</span>
+        <button id="btnReintentar" class="neumorphic w-[110px] h-[36px] flex items-center justify-center">
+          <span class="text-[#808080] font-sans text-sm">Reintentar</span>
+        </button>
+      `);
+      document.getElementById('btnReintentar').addEventListener('click', iniciarCamara);
+      manualBox.classList.remove('hidden');
+    };
+
+    const iniciarCamara = () => {
+      if (typeof Html5Qrcode === 'undefined') {
+        pintarEstado(`<span class="text-red-500 font-sans text-sm">No se pudo cargar el lector. Verifique su conexión.</span>`);
+        manualBox.classList.remove('hidden');
+        return;
+      }
+      manualBox.classList.add('hidden');
+      pintarEstado('<span class="text-[#5f5f5f] font-sans text-sm">Iniciando cámara...</span>');
+
+      html5QrCode = new Html5Qrcode('reader');
+      html5QrCode.start(
+        { facingMode: 'environment' },
+        { fps: 10, qrbox: { width: 220, height: 220 } },
+        (decodedText) => {
+          html5QrCode.stop().catch(() => {}).finally(() => navegar(decodedText));
+        },
+        () => {}
+      ).then(() => {
+        pintarEstado('');
+      }).catch((err) => {
+        pintarEstado(`
+          <span class="text-red-500 font-sans text-sm">No se pudo acceder a la cámara.</span>
+          <span class="text-[#5f5f5f] font-sans text-xs">Verifique los permisos y use HTTPS o localhost.</span>
+          <button id="btnReintentar" class="neumorphic w-[110px] h-[36px] flex items-center justify-center">
+            <span class="text-[#808080] font-sans text-sm">Reintentar</span>
+          </button>
+        `);
+        document.getElementById('btnReintentar').addEventListener('click', iniciarCamara);
+        manualBox.classList.remove('hidden');
+      });
+    };
+
+    let html5QrCode = null;
+    iniciarCamara();
+
+    manualForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      navegar(manualCode.value);
+    });
+  </script>
+
+</body>
+</html>

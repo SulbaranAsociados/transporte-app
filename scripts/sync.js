@@ -20,6 +20,17 @@ function parseDate(dateStr) {
   return dateStr; // Assume YYYY-MM-DD
 }
 
+const NATURAL_KEYS = {
+  calendario: ['id'],
+  rutas: ['id_ruta'],
+  paradas: ['id_parada'],
+  salidas_cabeceras: ['ruta_id', 'salida_origen', 'tipo_dia'],
+  secuencia_desfaces: ['ruta_id', 'parada_id', 'orden_secuencia', 'minutos_desde_origen'],
+  trenes: ['numero_tren', 'codigo_estacion', 'hora_de_paso', 'estacion_destino', 'calendario'],
+  trenes_estaciones: ['id'],
+  festivos: ['fecha', 'ambito', 'tipo_dia'],
+};
+
 async function syncCSV(filePath, tableName, mapFn) {
   console.log(`Sincronizando ${tableName}...`);
   const results = [];
@@ -37,7 +48,9 @@ async function syncCSV(filePath, tableName, mapFn) {
           resolve();
           return;
         }
-        const { error } = await supabase.from(tableName).upsert(results);
+        const keys = NATURAL_KEYS[tableName];
+        const opts = keys ? { onConflict: keys.join(',') } : undefined;
+        const { error } = await supabase.from(tableName).upsert(results, opts);
         if (error) {
           console.error(`Error en ${tableName}:`, error);
           reject(error);
@@ -66,7 +79,12 @@ async function runAllSyncs() {
 
     // 3. Paradas
     await syncCSV('../data/processed/dinamicos/paradas_unicas.csv', 'paradas', (row) => ({
-      id_parada: row.Id_parada, nombre: row.parada, latitud: parseFloat(row.latitud), longitud: parseFloat(row.longitud), localidad: row.localidad
+      id_parada: row.Id_parada, 
+      nombre: row.parada, 
+      latitud: parseFloat(row.latitud), 
+      longitud: parseFloat(row.longitud), 
+      localidad: row.localidad,
+      sentido: row.sentido || null // Mapeamos la nueva columna
     }));
 
     // 4. Salidas Cabeceras

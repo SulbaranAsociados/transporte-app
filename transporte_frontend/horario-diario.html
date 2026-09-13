@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horario Diario</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg: '#e6e6e6',
+            gray: '#808080',
+            logo: '#B1B2B5',
+          },
+          fontFamily: {
+            archivo: ['"Archivo Narrow"', 'sans-serif'],
+            sourcesans: ['"Source Sans 3"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      -webkit-font-smoothing: antialiased;
+      background-color: #e6e6e6;
+    }
+    .neumorphic {
+      background: #e6e6e6;
+      box-shadow: 8px -8px 8px 2px rgba(255,255,255,0.4), -8px 8px 9px 2px rgba(0,0,0,0.15);
+      border-radius: 20px;
+    }
+  </style>
+</head>
+<body class="flex justify-center min-h-screen">
+
+  <div class="w-full max-w-[430px] min-h-[932px] relative">
+
+    <!-- Logo -->
+    <img src="logo.png" alt="Transporte" class="absolute left-[126px] top-[45px] w-[179px] h-[90px] object-contain">
+
+    <!-- Trenes programados para hoy -->
+    <div class="absolute left-[97px] top-[148px]">
+      <span class="text-[#808080] font-archivo text-lg">Trenes programados para hoy</span>
+      <div id="nombreEstacion" class="text-[#808080] font-archivo text-sm mt-1"></div>
+    </div>
+
+    <!-- Tren Destino Hora header -->
+    <div class="absolute left-[74px] top-[198px]">
+      <span class="text-black font-archivo text-base">Tren        Destino        Hora:</span>
+    </div>
+
+    <!-- Lista dinámica de trenes de hoy -->
+    <div id="trenesHoy" class="absolute left-[74px] top-[235px] w-[282px] max-h-[250px] overflow-y-auto space-y-2">
+      <span class="text-[#808080] font-archivo text-sm">Cargando trenes de hoy...</span>
+    </div>
+
+    <!-- Anterior button -->
+    <div class="absolute left-[150px] top-[518px]">
+      <button class="neumorphic w-[130px] h-[45px] flex items-center justify-center gap-2" onclick="history.back()">
+        <svg class="w-[14px] h-[12px] text-[#808080]" viewBox="0 0 14 12" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4.12 0.12C4.41 0.14 4.69 0.26 4.9 0.5C5.35 0.99 5.31 1.82 4.91 2.36L3.03 4.92H12.92C13.52 4.92 14 5.41 14 6.01C14 6.36 13.88 6.69 13.68 6.94C13.48 7.18 13.2 7.32 12.92 7.32H3.03L4.91 9.88C5.31 10.42 5.35 11.25 4.91 11.74C4.46 12.23 3.78 12.18 3.38 11.64L0.62 7.91C0.19 7.33 0 6.64 0.19 6C0.39 5.31 0.78 4.75 1.3 4.38L3.37 1.29C3.57 1.03 3.84 0.87 4.12 0.85V0.12Z" fill="#808080"/>
+        </svg>
+        <span class="text-[#808080] font-archivo text-base">Anterior</span>
+      </button>
+    </div>
+
+    <!-- Display area -->
+    <div class="absolute left-[43px] top-[587px] w-[350px] h-[262px] bg-white rounded-sm"></div>
+
+    <!-- Footer -->
+    <div class="absolute left-[134px] top-[878px]">
+      <span class="text-[#808080] font-sourcesans text-base">Información y Contacto</span>
+    </div>
+
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const trenesHoy = document.getElementById('trenesHoy');
+    const soloHora = (t) => (t || '').substring(0, 5);
+
+    async function estacionMasCercana() {
+      const lat = sessionStorage.getItem('userLat');
+      const lng = sessionStorage.getItem('userLng');
+      if (!lat || !lng) return EstacionOrigen;
+      try {
+        const r = await llamarFuncion('estacion-mas-cercana', { body: { lat: Number(lat), lng: Number(lng) } });
+        return r.estacion || EstacionOrigen;
+      } catch (err) {
+        console.error(err);
+        return EstacionOrigen;
+      }
+    }
+
+    (async () => {
+      const estacion = params.get('estacion_id')
+        ? { id: params.get('estacion_id') }
+        : await estacionMasCercana();
+      const estacionId = estacion.id;
+
+      if (!estacionId) {
+        trenesHoy.innerHTML = '<span class="text-[#808080] font-archivo text-sm">Sin estación seleccionada.</span>';
+        return;
+      }
+
+      try {
+        const data = await llamarFuncion('proximos-trenes', {
+          body: { estacion_id: estacionId },
+        });
+
+        if (estacion.nombre) {
+          document.getElementById('nombreEstacion').textContent = `Estación: ${estacion.nombre}`;
+        }
+
+        const trenes = (data.trenes || []).filter(t => t.codigo_estacion === estacionId);
+        if (trenes.length === 0) {
+          trenesHoy.innerHTML = '<span class="text-[#808080] font-archivo text-sm">No hay trenes programados para hoy.</span>';
+          return;
+        }
+
+        trenesHoy.innerHTML = '';
+        trenes.forEach((t) => {
+          const fila = document.createElement('div');
+          fila.className = 'flex justify-between items-baseline';
+          fila.innerHTML = `
+            <span class="text-black font-archivo text-base">${t.linea} ${t.numero_tren.replace(/\s*RE$/i, '')}</span>
+            <span class="text-black font-archivo text-base">${t.estacion_destino}</span>
+            <span class="text-black font-archivo text-base font-semibold">${soloHora(t.hora_de_paso)}</span>
+          `;
+          trenesHoy.appendChild(fila);
+        });
+      } catch (err) {
+        console.error(err);
+        trenesHoy.innerHTML = '<span class="text-red-500 font-archivo text-sm">Error de conexión con el servicio.</span>';
+      }
+    })();
+  </script>
+
+</body>
+</html>

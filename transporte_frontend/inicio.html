@@ -1,0 +1,178 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inicio | Asistente de transporte público</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg: '#e6e6e6',
+            gray: '#808080',
+            logo: '#B1B2B5',
+          },
+          fontFamily: {
+            sans: ['"Source Sans 3"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      -webkit-font-smoothing: antialiased;
+      background-color: #e6e6e6;
+    }
+    .option-card {
+      background: #e6e6e6;
+      border-radius: 40px;
+      box-shadow: 8px -8px 8px 2px rgba(255,255,255,0.4), -8px 8px 8px 2px rgba(0,0,0,0.15);
+    }
+    .neumorphic {
+      background: #e6e6e6;
+      border-radius: 20px;
+      box-shadow: 8px -8px 8px 2px rgba(255,255,255,0.4), -8px 8px 9px 2px rgba(0,0,0,0.15);
+    }
+  </style>
+</head>
+<body class="flex justify-center min-h-screen">
+
+  <div class="w-full max-w-[430px] min-h-[932px] relative">
+
+    <!-- Logo -->
+    <img src="logo.png" alt="Transporte" class="absolute left-[126px] top-[44px] w-[179px] h-[90px] object-contain">
+
+    <!-- Botón Autobús -->
+    <div class="absolute left-[39px] top-[227px]">
+      <button class="option-card w-[99.5px] h-[160px] flex flex-col items-center justify-center" onclick="location.href='index.html'">
+        <img src="autobus.svg" alt="Autobús" class="w-[62px] h-[62px] object-contain">
+        <span class="text-[#808080] text-xs font-semibold mt-2">Autobús</span>
+      </button>
+    </div>
+
+    <!-- Botón QR -->
+    <div class="absolute left-[165px] top-[228px]">
+      <button class="option-card w-[99.5px] h-[160px] flex flex-col items-center justify-center" onclick="location.href='qr.html'">
+        <img src="qr.svg" alt="QR" class="w-[62px] h-[62px] object-contain">
+        <span class="text-[#808080] text-xs font-semibold mt-2">QR</span>
+      </button>
+    </div>
+
+    <!-- Botón Tren -->
+    <div class="absolute left-[291px] top-[227px]">
+      <button id="btnTren" class="option-card w-[99.5px] h-[160px] flex flex-col items-center justify-center">
+        <img src="tren.svg" alt="Tren" class="w-[62px] h-[62px] object-contain">
+        <span class="text-[#808080] text-xs font-semibold mt-2">Tren</span>
+      </button>
+    </div>
+
+    <!-- Texto informativo -->
+    <div class="absolute left-[53px] top-[417px] w-[324px] text-center">
+      <p class="text-[#5f5f5f] text-sm leading-normal">¿Cómo deseas ir a tu destino, en Autobus o Tren?</p>
+      <p class="text-[#5f5f5f] text-sm leading-normal">También puedes escanear nuestro QR en la marquesina</p>
+      <p class="text-[#5f5f5f] text-sm leading-normal">o estación de trenes para conocer los horarios</p>
+      <p class="text-[#5f5f5f] text-sm leading-normal">de esa parada o estación.</p>
+    </div>
+
+    <!-- Botón Estoy en la estación de Vila-seca -->
+    <div class="absolute left-[65px] top-[474px]">
+      <button id="btnVilaSe" class="neumorphic w-[300px] h-[45px] flex items-center justify-center gap-2">
+        <span class="text-[#808080] text-base font-semibold">Estoy en la estación de Vila-seca</span>
+      </button>
+    </div>
+
+    <!-- Botón Anterior -->
+    <div class="absolute left-[150px] top-[528px]">
+      <button class="neumorphic w-[130px] h-[45px] flex items-center justify-center gap-2" onclick="history.back()">
+        <img src="atras.svg" alt="" class="w-[14px] h-3 object-contain">
+        <span class="text-[#808080] text-base font-semibold">Anterior</span>
+      </button>
+    </div>
+
+    <!-- Display -->
+    <div class="absolute left-[40px] top-[602px] w-[350px] h-[262px] bg-white rounded-sm"></div>
+
+    <!-- Footer -->
+    <div class="absolute left-[134px] top-[875px]">
+      <span class="text-[#808080] text-base">Información y Contacto</span>
+    </div>
+
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    const btnTren = document.getElementById('btnTren');
+
+    const irATrenes = () => window.location.href = 'trenes.html';
+
+    const guardarOrigen = (origen) => {
+      sessionStorage.setItem('origenId', origen.id);
+      sessionStorage.setItem('origenNombre', origen.estacion || origen.nombre || origen.id);
+    };
+
+    const origenVilaSe = () => guardarOrigen(EstacionOrigen);
+
+    const btnVilaSe = document.getElementById('btnVilaSe');
+    btnVilaSe.addEventListener('click', () => {
+      sessionStorage.setItem('modoTransporte', 'tren');
+      sessionStorage.setItem('noUbicacion', 'true');
+      sessionStorage.removeItem('userLat');
+      sessionStorage.removeItem('userLng');
+      origenVilaSe();
+      irATrenes();
+    });
+
+    btnTren.addEventListener('click', () => {
+      if (!navigator.geolocation) {
+        sessionStorage.setItem('modoTransporte', 'tren');
+        origenVilaSe();
+        irATrenes();
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          sessionStorage.setItem('modoTransporte', 'tren');
+          sessionStorage.setItem('userLat', pos.coords.latitude);
+          sessionStorage.setItem('userLng', pos.coords.longitude);
+          sessionStorage.removeItem('noUbicacion');
+
+          try {
+            const r = await llamarFuncion('estacion-mas-cercana', {
+              body: { lat: pos.coords.latitude, lng: pos.coords.longitude },
+            });
+            if (r.estacion) guardarOrigen(r.estacion);
+            else origenVilaSe();
+          } catch (err) {
+            console.error(err);
+            origenVilaSe();
+          }
+          irATrenes();
+        },
+        (err) => {
+          sessionStorage.setItem('modoTransporte', 'tren');
+          const asumir = window.confirm(
+            'No pudimos obtener tu ubicación (permiso denegado o sin señal GPS).\n\n¿Continuar asumiendo que estás en la estación de Vila-seca?'
+          );
+          if (asumir) {
+            sessionStorage.setItem('noUbicacion', 'true');
+            sessionStorage.setItem('userLat', '');
+            sessionStorage.setItem('userLng', '');
+            origenVilaSe();
+            irATrenes();
+          }
+        },
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 30000 }
+      );
+    });
+  </script>
+
+</body>
+</html>

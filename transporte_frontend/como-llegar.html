@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Como Llegar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg: '#e6e6e6',
+            gray: '#808080',
+            logo: '#B1B2B5',
+            green: '#81b544',
+          },
+          fontFamily: {
+            archivo: ['"Archivo Narrow"', 'sans-serif'],
+            sourcesans: ['"Source Sans 3"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      -webkit-font-smoothing: antialiased;
+      background-color: #e6e6e6;
+    }
+    .neumorphic {
+      background: #e6e6e6;
+      box-shadow: 8px -8px 8px 2px rgba(255,255,255,0.4), -8px 8px 9px 2px rgba(0,0,0,0.15);
+      border-radius: 30px;
+    }
+  </style>
+</head>
+<body class="flex justify-center min-h-screen">
+
+  <div class="w-full max-w-[430px] min-h-[932px] relative">
+
+    <!-- Logo -->
+    <img src="logo.png" alt="Transporte" class="absolute left-[126px] top-[44px] w-[179px] h-[90px] object-contain">
+
+    <!-- Dirigete a -->
+    <div class="absolute left-[67px] top-[184px]">
+      <span class="text-[#808080] font-archivo text-base">Dirigete a: <span id="nombreParada" class="text-black font-semibold">la parada</span></span>
+    </div>
+
+    <!-- El mapa muestra... -->
+    <div class="absolute left-[87px] top-[256px] text-center">
+      <span class="text-[#808080] font-archivo text-base block">El mapa muestra su ubicación actual</span>
+      <span class="text-[#808080] font-archivo text-base block">y la ubicación de la parada.</span>
+    </div>
+
+    <!-- Mapa -->
+    <div class="absolute left-[36px] top-[312px] w-[350px] h-[350px] bg-white rounded-sm overflow-hidden">
+      <iframe id="mapaFrame" class="w-full h-full" frameborder="0" style="border:0"></iframe>
+    </div>
+
+    <!-- Para ver la hora... -->
+    <div class="absolute left-[70px] top-[690px] text-center">
+      <span class="text-[#808080] font-archivo text-base block">Para ver la hora de llegada del autobus</span>
+      <span class="text-[#808080] font-archivo text-base block">que le llevará a su destino pulse Continuar</span>
+    </div>
+
+    <!-- Continuar button -->
+    <div class="absolute left-[136px] top-[761px]">
+      <button id="btnContinuar" class="neumorphic w-[150px] h-[79px] flex items-center justify-center">
+        <span class="text-[#81b544] font-archivo text-[24px]">Continuar</span>
+      </button>
+    </div>
+
+    <!-- Footer -->
+    <div class="absolute left-[134px] top-[876px]">
+      <span class="text-[#808080] font-archivo text-base">Información y Contacto</span>
+    </div>
+
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const userLat = Number(params.get('user_lat'));
+    const userLng = Number(params.get('user_lng'));
+    const destino = params.get('destino');
+
+    const nombreParada = document.getElementById('nombreParada');
+    const mapaFrame = document.getElementById('mapaFrame');
+    const btnContinuar = document.getElementById('btnContinuar');
+
+    const encFrame = (s) => encodeURIComponent(s);
+
+    (async () => {
+      if (!Number.isFinite(userLat) || !Number.isFinite(userLng)) {
+        nombreParada.textContent = 'ubicación no disponible';
+        btnContinuar.disabled = true;
+        return;
+      }
+
+      try {
+        const r = await llamarFuncion('parada-mas-cercana', {
+          body: { lat: userLat, lng: userLng, destino: destino || undefined },
+        });
+
+        const parada = r.parada;
+        nombreParada.textContent = parada.nombre;
+
+        const z = 15;
+        const mapa = `https://maps.google.com/maps?saddr=${userLat},${userLng}&daddr=${parada.latitud},${parada.longitud}&z=${z}&output=embed`;
+        mapaFrame.src = mapa;
+
+        btnContinuar.addEventListener('click', () => {
+          window.location.href = `Horario-bus.html?parada_id=${encFrame(parada.id_parada)}`;
+        });
+      } catch (err) {
+        console.error(err);
+        nombreParada.textContent = 'parada no encontrada';
+        btnContinuar.disabled = true;
+      }
+    })();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Elija un destino | Lo Sabe</title>
+    <link rel="stylesheet" href="css/base.css">
+</head>
+<body>
+    <main class="destination-selector">
+        <img class="logo" src="logo.png" alt="Lo Sabe">
+
+        <h1>Elija un destino</h1>
+
+        <nav class="destinations" aria-label="Destinos disponibles">
+            <a class="destination-button" href="#la-pineda" data-destino="La Pineda">La Pineda</a>
+            <a class="destination-button" href="#vila-seca" data-destino="Vila-seca">Vila-seca</a>
+            <a class="destination-button" href="#tarragona" data-destino="Tarragona">Tarragona</a>
+            <a class="destination-button" href="#salou" data-destino="Salou">Salou</a>
+            <a class="destination-button" href="#cambrils" data-destino="Cambrils">Cambrils</a>
+            <a class="destination-button" href="#reus" data-destino="Reus">Reus</a>
+            <a class="destination-button" href="#estacio-del-camp" data-destino="Est. del Camp">Estació del Camp</a>
+            <a class="destination-button" href="#aeropuerto-reus" data-destino="Aero. Reus">Aeropuerto Reus</a>
+            <a class="destination-button" href="#barcelona" data-destino="Barcelona">Barcelona</a>
+            <a class="destination-button" href="#aeropuerto-barcelona" data-destino="Barcelona">Aeropuerto Barcelona</a>
+        </nav>
+
+        <button class="back-button" type="button" onclick="history.back()">
+            <img src="atras.svg" alt="" aria-hidden="true">
+            Anterior
+        </button>
+
+        <footer>
+            <a href="#informacion-contacto">Información y Contacto</a>
+        </footer>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script>
+        const sinUbicacion = (destino) => {
+            window.location.href = 'sin-ubicacion.html?' + new URLSearchParams({ destino }).toString();
+        };
+
+        const conUbicacion = (pos, destino) => {
+            window.location.href = 'como-llegar.html?' + new URLSearchParams({
+                destino,
+                user_lat: pos.coords.latitude,
+                user_lng: pos.coords.longitude,
+            }).toString();
+        };
+
+        document.querySelectorAll('.destination-button').forEach((btn) => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const destino = btn.dataset.destino;
+
+                if (!navigator.geolocation) {
+                    sinUbicacion(destino);
+                    return;
+                }
+
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => conUbicacion(pos, destino),
+                    () => sinUbicacion(destino),
+                    { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+                );
+            });
+        });
+    </script>
+</body>
+</html>

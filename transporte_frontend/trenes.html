@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trenes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Source Sans 3"', 'sans-serif'],
+          },
+          colors: {
+            app: {
+              bg: '#e6e6e6',
+              input: '#ebebeb',
+              border: '#bfbebe',
+              logo: '#B1B2B5',
+              gray: '#808080',
+              green: '#84b648',
+            }
+          },
+          boxShadow: {
+            'neu': '8px -8px 8px 2px rgba(255,255,255,0.4), -8px 8px 9px 2px rgba(0,0,0,0.15)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { -webkit-font-smoothing: antialiased; }
+    #suggestions {
+      display: none;
+    }
+    #suggestions.active {
+      display: block;
+    }
+    #suggestions div {
+      padding: 11px 16px;
+      cursor: pointer;
+      border-bottom: 1px solid #e8e8e8;
+    }
+    #suggestions div:last-child {
+      border-bottom: none;
+    }
+    #suggestions div:hover {
+      background: #dfdfdf;
+    }
+  </style>
+</head>
+<body class="bg-app-bg flex justify-center min-h-screen">
+
+  <div class="w-full max-w-[430px] min-h-[932px] relative overflow-hidden">
+
+    <!-- Logo -->
+    <div class="absolute left-[125px] top-[47px]">
+      <img src="logo.png" alt="Transporte" class="w-[179px] h-[90px] object-contain">
+    </div>
+
+    <!-- Destino label -->
+    <div class="absolute left-[182px] top-[149px]">
+      <span class="text-app-gray text-lg font-bold">Destino</span>
+      <span class="text-app-gray text-lg font-normal">:</span>
+    </div>
+
+    <!-- Input destino -->
+    <div class="absolute left-[40px] top-[225px]">
+      <input
+        id="inputDestino"
+        type="text"
+        placeholder="Escriba su destino..."
+        autocomplete="off"
+        class="w-[347px] h-[36px] bg-app-input border border-app-border rounded-xl px-4 text-sm text-black outline-none"
+      >
+    </div>
+
+    <!-- Sugerencias predictivas -->
+    <div id="suggestions" class="absolute left-[40px] top-[195px] w-[347px] bg-white border border-app-border rounded-xl shadow-lg overflow-hidden z-10"></div>
+
+    <!-- Estación seleccionada -->
+    <div id="selectedEstacion" class="absolute top-[182px] w-full hidden">
+      <span class="text-black font-bold text-2xl text-center block"></span>
+    </div>
+
+    <!-- Info text -->
+    <div class="absolute left-[49px] top-[269px]">
+      <span id="infoOrigen" class="text-app-gray text-xs leading-tight">
+        Información solo de trenes con destinos directos desde Vila-seca
+      </span>
+    </div>
+
+    <!-- Botón Ver Horario -->
+    <div class="absolute left-[140px] top-[353px]">
+      <button id="btnVerHorario" class="w-[150px] h-[80px] bg-app-bg rounded-[30px] shadow-neu
+                     flex items-center justify-center">
+        <span class="text-app-green text-xl font-bold">Ver Horario</span>
+      </button>
+    </div>
+
+    <!-- Error de validación -->
+    <div id="errorDestino" class="absolute left-[40px] top-[303px] w-[347px] hidden">
+      <span id="errorTexto" class="text-red-600 text-sm font-semibold"></span>
+    </div>
+
+    <!-- Botón Anterior -->
+    <div class="absolute left-[150px] top-[517px]">
+      <button class="w-[130px] h-[45px] bg-app-bg rounded-[20px] shadow-neu
+                     flex items-center justify-center gap-2">
+        <svg class="w-4 h-3.5 text-app-gray" viewBox="0 0 14 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0.5 6H12.5M0.5 6L5.5 1M0.5 6L5.5 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="text-app-gray text-base font-semibold">Anterior</span>
+      </button>
+    </div>
+
+    <!-- Display area -->
+    <div class="absolute left-[40px] top-[587px]">
+      <div class="w-[350px] h-[262px] bg-white rounded-sm"></div>
+    </div>
+
+    <!-- Footer -->
+    <div class="absolute left-[134px] top-[878px]">
+      <span class="text-app-gray text-base">Información y Contacto</span>
+    </div>
+
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    let origenId = sessionStorage.getItem('origenId') || EstacionOrigen.id;
+    let origenNombre = sessionStorage.getItem('origenNombre') || EstacionOrigen.nombre;
+
+    const infoOrigen = document.getElementById('infoOrigen');
+    infoOrigen.textContent = `Tus horarios se calculan desde tu estación más cercana: ${origenNombre}`;
+
+    const promesaOrigen = recalcularOrigenMasCercano().then((o) => {
+      origenId = o.id;
+      origenNombre = o.nombre;
+      infoOrigen.textContent = `Tus horarios se calculan desde tu estación más cercana: ${origenNombre}`;
+    });
+
+    const input = document.getElementById('inputDestino');
+    const suggestions = document.getElementById('suggestions');
+    const selected = document.getElementById('selectedEstacion');
+    const selectedName = selected.querySelector('span');
+    const errorDestino = document.getElementById('errorDestino');
+    const errorTexto = document.getElementById('errorTexto');
+    const btnVerHorario = document.getElementById('btnVerHorario');
+
+    let estacionSeleccionada = null;
+    let destinoPendiente = null;
+
+    const mostrarError = (msg) => {
+      errorTexto.textContent = msg;
+      errorDestino.classList.remove('hidden');
+    };
+    const ocultarError = () => errorDestino.classList.add('hidden');
+
+    const limpiarSeleccion = () => {
+      estacionSeleccionada = null;
+      selected.classList.add('hidden');
+      selectedName.textContent = '';
+    };
+
+    let temporizador = null;
+
+    input.addEventListener('input', () => {
+      ocultarError();
+      limpiarSeleccion();
+      suggestions.innerHTML = '';
+      suggestions.classList.remove('active');
+
+      const valor = input.value.trim();
+      if (!valor) return;
+
+      clearTimeout(temporizador);
+      temporizador = setTimeout(async () => {
+        try {
+          const estaciones = await llamarFuncion('autocomplete-estaciones', {
+            method: 'GET',
+            query: { query: valor },
+          });
+
+          suggestions.innerHTML = '';
+          if (estaciones.length === 0) {
+            const div = document.createElement('div');
+            div.className = 'text-app-gray text-[15px]';
+            div.textContent = `No hay conexión directa desde ${origenNombre} a "${valor}". Elija una estación de la lista.`;
+            suggestions.appendChild(div);
+            suggestions.classList.add('active');
+            return;
+          }
+
+          estaciones.forEach((e) => {
+            const div = document.createElement('div');
+            div.className = 'text-app-gray text-[15px] font-semibold';
+            div.textContent = e.estacion;
+            div.addEventListener('click', () => {
+              input.value = e.estacion;
+              estacionSeleccionada = e;
+              suggestions.innerHTML = '';
+              suggestions.classList.remove('active');
+              selectedName.textContent = e.estacion;
+              selected.classList.remove('hidden');
+              ocultarError();
+            });
+            suggestions.appendChild(div);
+          });
+          suggestions.classList.add('active');
+        } catch (err) {
+          console.error(err);
+          mostrarError('No se pudo conectar con el servicio de estaciones.');
+        }
+      }, 250);
+    });
+
+    btnVerHorario.addEventListener('click', async () => {
+      const valor = input.value.trim();
+
+      if (!valor) {
+        mostrarError('Escriba un destino para ver su horario.');
+        return;
+      }
+
+      await promesaOrigen;
+
+      if (!estacionSeleccionada) {
+        try {
+          const estaciones = await llamarFuncion('autocomplete-estaciones', {
+            method: 'GET',
+            query: { query: valor },
+          });
+          const exacta = estaciones.find(
+            (e) => e.estacion.toLowerCase() === valor.toLowerCase()
+          );
+          if (!exacta) {
+            mostrarError(`"${valor}" no tiene conexión directa desde ${origenNombre}. Elija una estación de la lista.`);
+            return;
+          }
+          estacionSeleccionada = exacta;
+        } catch (err) {
+          console.error(err);
+          mostrarError('No se pudo conectar con el servicio de estaciones.');
+          return;
+        }
+      }
+
+      ocultarError();
+      window.location.href = `horario-tren.html?estacion_id=${encodeURIComponent(estacionSeleccionada.id)}&destino=${encodeURIComponent(estacionSeleccionada.estacion)}&origen_id=${encodeURIComponent(origenId)}&origen_nombre=${encodeURIComponent(origenNombre)}`;
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!suggestions.contains(e.target) && e.target !== input) {
+        suggestions.classList.remove('active');
+      }
+    });
+  </script>
+
+</body>
+</html>

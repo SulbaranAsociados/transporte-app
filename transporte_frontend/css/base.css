@@ -1,0 +1,134 @@
+:root {
+    color: #808080;
+    background: #e6e6e6;
+    font-family: "Source Sans Pro", "Segoe UI", sans-serif;
+    font-synthesis: none;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    min-height: 100%;
+    margin: 0;
+}
+
+body {
+    display: grid;
+    place-items: center;
+}
+
+.destination-selector {
+    display: flex;
+    width: min(100%, 430px);
+    min-height: 100dvh;
+    padding: 45px 40px 30px;
+    flex-direction: column;
+    align-items: center;
+    background: transparent;
+}
+
+.logo {
+    display: block;
+    width: 180px;
+    height: 90px;
+    object-fit: contain;
+}
+
+h1 {
+    margin: 14px 0 15px;
+    font-size: 24px;
+    line-height: 1.2;
+}
+
+.destinations {
+    display: grid;
+    width: 100%;
+    gap: 27px;
+}
+
+.destination-button,
+.back-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+    background: #e6e6e6;
+    text-decoration: none;
+    box-shadow: 8px -8px 8px 2px #ffffff66,
+        -8px 8px 8px 2px #00000026;
+    transition: box-shadow 150ms ease, transform 150ms ease;
+}
+
+.destination-button {
+    width: 100%;
+    min-height: 38px;
+    border-radius: 17px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.destination-button:hover,
+.destination-button:focus-visible,
+.back-button:hover,
+.back-button:focus-visible {
+    outline: none;
+    transform: translateY(-1px);
+    box-shadow: 6px -6px 7px 1px #ffffff80,
+        -6px 6px 7px 1px #00000030;
+}
+
+.destination-button:active,
+.back-button:active {
+    transform: translateY(1px);
+    box-shadow: inset 3px -3px 5px #ffffff66,
+        inset -3px 3px 5px #00000020;
+}
+
+.back-button {
+    width: 130px;
+    min-height: 45px;
+    margin-top: 25px;
+    border: 0;
+    gap: 7px;
+    border-radius: 20px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.back-button img {
+    width: 14px;
+    height: 14px;
+    opacity: 0.55;
+}
+
+footer {
+    margin-top: 14px;
+    font-size: 16px;
+}
+
+footer a {
+    color: inherit;
+    text-decoration: none;
+}
+
+footer a:hover,
+footer a:focus-visible {
+    text-decoration: underline;
+}
+
+@media (min-width: 431px) {
+    .destination-selector {
+        min-height: 932px;
+    }
+}
+
+@media (max-width: 380px) {
+    .destination-selector {
+        padding-inline: 24px;
+    }
+}

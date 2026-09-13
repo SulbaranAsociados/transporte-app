@@ -1,0 +1,28 @@
+/* Base unificada para siluetas */
+.neumorphic-shape {
+    border: none;
+    background: #e6e6e6;
+    /* Efecto unificado */
+    box-shadow: -8px 8px 16px #bebebe, 8px -8px 16px #ffffff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    /* Tamaño por defecto, ajustable en cada clase */
+    width: 100px;
+    height: 100px;
+}
+
+.neumorphic-shape:active {
+    box-shadow: inset -6px 6px 12px #bebebe, inset 6px -6px 12px #ffffff;
+}
+
+/* Clases específicas por silueta */
+.shape-bajo     { background-image: url('../../btn_bajo.png'); }
+.shape-cuadrado { background-image: url('../../btn_cuadrado.png'); }
+.shape-peq      { background-image: url('../../btn_peq.png'); }
+.shape-plano    { background-image: url('../../btn_plano.png'); }
+.shape-alto     { background-image: url('../../btn_alto.png'); }
+ /* Asumiendo este nombre */
+

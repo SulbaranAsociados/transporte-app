@@ -1,15 +1,42 @@
 # Node
 node_modules/
 npm-debug.log
+.next/
+next-env.d.ts
 
 # Environment
 .env
+.env.*
+!.env.example
 
 # OS
 .DS_Store
 *.swp
+*~
+.~lock.*
 
 # Supabase Local Development
 supabase/.temp
 supabase/.output
 supabase/.env
+
+# Prototipos antiguos
+transporte-app/
+web-app/
+svg_test/
+
+# Temporales / análisis
+conflictos*.csv
+duplicados.csv
+datos_dinamicos_paradas_unicas.csv
+datos_dinamicos_secuencia_desfaces.csv
+datos_trenes_estaciones.csv
+Supabase Snippet Untitled query.csv
+captura*.png
+Captura*.png
+drawing.svg
+image1-6-3-2-0.png
+transporte_inicio.png
+Btn_bus.png
+btn_plano.png
+logo.png

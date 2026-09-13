@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="50mm"
+   height="50mm"
+   viewBox="0 0 50 50"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4.4 (1:1.4.4+202605061436+dcaf3e7d9e)"
+   sodipodi:docname="salir.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     inkscape:document-units="mm"
+     inkscape:zoom="0.72337262"
+     inkscape:cx="112.66669"
+     inkscape:cy="107.82825"
+     inkscape:window-width="1872"
+     inkscape:window-height="1014"
+     inkscape:window-x="48"
+     inkscape:window-y="29"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Capa 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       id="rect2"
+       style="baseline-shift:baseline;display:inline;overflow:visible;vector-effect:none;stroke-width:1;stroke-linecap:round;enable-background:accumulate;stop-color:#000000"
+       d="m 20.3055,5.5016113 a 2.1452696,2.1452696 0 0 0 -2.142725,2.146411 2.1452696,2.1452696 0 0 0 2.142725,2.1456834 h 15.19964 c 0.929892,0 1.610357,0.6812073 1.610357,1.6110993 v 28.541902 c 0,0.929893 -0.680465,1.6111 -1.610357,1.6111 H 20.3055 a 2.1452696,2.1452696 0 0 0 -2.142725,2.145669 2.1452696,2.1452696 0 0 0 2.142725,2.145683 h 15.19964 c 3.232629,0 5.902452,-2.669822 5.902452,-5.902452 V 11.404805 c 0,-3.2326292 -2.669823,-5.9031937 -5.902452,-5.9031937 z m 4.966026,10.2085577 a 2.1452624,2.1452624 0 0 0 -1.546221,0.54637 2.1452624,2.1452624 0 0 0 -0.16443,3.029018 l 3.73909,4.165989 H 7.8539494 a 2.1452624,2.1452624 0 0 0 -2.1456748,2.143472 2.1452624,2.1452624 0 0 0 2.1456748,2.145669 H 27.445218 l -3.884343,4.325269 a 2.1452624,2.1452624 0 0 0 0.16443,3.029018 2.1452624,2.1452624 0 0 0 3.029018,-0.161477 l 5.445304,-6.066882 c 1.63878,-1.82547 1.63878,-4.556248 0,-6.381717 l -5.445304,-6.063929 a 2.1452624,2.1452624 0 0 0 -1.482797,-0.7108 z" />
+  </g>
+</svg>

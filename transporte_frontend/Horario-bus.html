@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horario Bus</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;500;600;700&family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg: '#e6e6e6',
+            card: '#dcdcdc',
+            'card-border': '#c5c5c5',
+            gray: '#808080',
+            logo: '#B1B2B5',
+            green: '#84b648',
+          },
+          fontFamily: {
+            sans: ['"Roboto Condensed"', 'sans-serif'],
+            display: ['"Barlow Condensed"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      -webkit-font-smoothing: antialiased;
+      background-color: #e6e6e6;
+    }
+    .neumorphic {
+      background: #e6e6e6;
+      box-shadow: 6px -6px 10px rgba(255, 255, 255, 0.5), -6px 6px 10px rgba(0, 0, 0, 0.15);
+      border-radius: 20px;
+    }
+  </style>
+</head>
+<body class="flex justify-center min-h-screen">
+
+  <div class="w-full max-w-[430px] min-h-[932px] relative">
+
+    <!-- Logo -->
+    <img src="logo.png" alt="Transporte" class="absolute left-[125px] top-[45px] w-[179px] h-[90px] object-contain">
+
+    <!-- Destino label + nombre del destino -->
+    <div class="absolute top-[145px] w-full text-center">
+      <span class="text-[#808080] font-sans text-lg">Parada: <span id="nombreParada" class="font-medium text-black text-2xl">Cargando...</span></span>
+    </div>
+
+    <!-- Info card -->
+    <div class="absolute left-[39px] top-[199px] w-[351px] h-[160px] bg-[#dcdcdc] rounded-[30px] px-6 pt-2">
+      <p class="text-black font-sans text-lg text-center w-[200px]">El autobús sale a las:</p>
+      <div class="mt-1 w-[200px] h-[71px] border border-white rounded-[20px] flex items-center justify-center bg-[linear-gradient(to_bottom,#E7E8E9_0%,rgba(177,178,181,0)_100%)]">
+        <span id="horaSalida" class="text-[#3c3c3c] font-display font-bold text-[48px] leading-none">--:--</span>
+      </div>
+      <p class="text-black font-sans text-lg mt-1 w-[200px] text-center">Faltan: <span id="faltan" class="text-xl font-bold">--:--</span> Horas</p>
+    </div>
+
+    <!-- Ver Ruta button -->
+    <div class="absolute left-[284px] top-[261px]">
+      <button class="neumorphic w-[80px] h-[40px] flex items-center justify-center">
+        <span class="text-[#808080] font-sans text-sm">Ver Ruta</span>
+      </button>
+    </div>
+
+    <!-- Botón Destinos -->
+    <div class="absolute left-[65px] top-[408px]">
+      <button id="btnDestinos" class="neumorphic w-[130px] h-[45px] flex items-center justify-center gap-2">
+        <span class="text-[#808080] font-sans text-2xl font-semibold">+</span>
+        <span class="text-[#808080] font-sans text-base">Destinos</span>
+      </button>
+    </div>
+
+    <!-- Botón Salir -->
+    <div class="absolute left-[65px] top-[479px]">
+      <button id="btnSalir" class="neumorphic w-[130px] h-[45px] flex items-center justify-center gap-2">
+        <span class="text-[#808080] font-sans text-base">Salir</span>
+        <svg class="w-5 h-5 text-[#808080]" viewBox="0 0 20 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M7 17H3a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h4"/>
+          <polyline points="14 13 18 9 14 5"/>
+          <line x1="18" y1="9" x2="7" y2="9"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Lista de próximos autobuses -->
+    <div class="absolute left-[204px] top-[366px] w-[185px] h-[208px] bg-[#dcdcdc] rounded-[30px] py-4 px-3 flex flex-col justify-center">
+      <p class="text-[#808080] font-display text-base whitespace-nowrap">Próximos Autobuses</p>
+      <div id="proximosLista" class="mt-2 space-y-2"></div>
+    </div>
+
+    <!-- Display area -->
+    <div class="absolute left-[40px] top-[586px] w-[350px] h-[262px] bg-white rounded-sm"></div>
+
+    <!-- Footer -->
+    <div class="absolute left-[134px] top-[872px]">
+      <span class="text-[#808080] font-sans text-base">Información y Contacto</span>
+    </div>
+
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const paradaId = params.get('parada_id');
+
+    const nombreParada = document.getElementById('nombreParada');
+    const horaSalida = document.getElementById('horaSalida');
+    const faltan = document.getElementById('faltan');
+    const proximosLista = document.getElementById('proximosLista');
+
+    const diferenciaHoras = (desde, hasta) => {
+      const [h1, m1] = desde.split(':').map(Number);
+      const [h2, m2] = hasta.split(':').map(Number);
+      let diff = (h2 * 60 + m2) - (h1 * 60 + m1);
+      if (diff < 0) diff += 24 * 60;
+      return `${String(Math.floor(diff / 60)).padStart(2, '0')}:${String(diff % 60).padStart(2, '0')}`;
+    };
+
+    const ahoraHHMM = () => {
+      const d = new Date();
+      return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+    };
+
+    (async () => {
+      if (!paradaId) {
+        nombreParada.textContent = 'Sin parada';
+        proximosLista.innerHTML = '<span class="text-[#808080] font-sans text-sm block">Sin parada especificada. Escanea el QR de la parada.</span>';
+        return;
+      }
+
+      nombreParada.textContent = paradaId;
+
+      try {
+        const data = await llamarFuncion('proximos-autobuses', {
+          query: { parada_id: paradaId },
+        });
+
+        if (!data.found || (data.autobuses || []).length === 0) {
+          horaSalida.textContent = '--:--';
+          faltan.textContent = '--:--';
+          proximosLista.innerHTML = '<span class="text-[#808080] font-sans text-sm block">No hay autobuses próximos.</span>';
+          return;
+        }
+
+        const primero = data.autobuses[0];
+        horaSalida.textContent = primero.hora;
+        faltan.textContent = diferenciaHoras(ahoraHHMM(), primero.hora);
+
+        proximosLista.innerHTML = '';
+        data.autobuses.forEach((a) => {
+          const fila = document.createElement('div');
+          fila.className = 'flex items-baseline gap-1.5';
+          fila.innerHTML = `
+            <span class="text-black font-sans text-base font-semibold">${a.hora}</span>
+            <span class="text-black font-sans text-sm">Autobús ${a.numero || '?'}</span>
+            <span class="text-black font-sans text-sm">${a.destino || ''}</span>
+          `;
+          proximosLista.appendChild(fila);
+        });
+      } catch (err) {
+        console.error(err);
+        horaSalida.textContent = '--:--';
+        faltan.textContent = '--:--';
+        proximosLista.innerHTML = '<span class="text-[#808080] font-sans text-sm block">Error de conexión.</span>';
+      }
+    })();
+
+    document.getElementById('btnDestinos').addEventListener('click', () => {
+      window.location.href = 'index.html';
+    });
+
+    document.getElementById('btnSalir').addEventListener('click', () => {
+      window.location.href = 'https://vilaseca.losabe.es';
+    });
+  </script>
+
+</body>
+</html>
