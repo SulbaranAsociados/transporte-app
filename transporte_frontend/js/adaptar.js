@@ -11,6 +11,10 @@
   function ajustar() {
     var escala = Math.min(window.innerWidth / DESIGN_W, window.innerHeight / DESIGN_H, 1);
 
+    document.body.style.display = 'flex';
+    document.body.style.flexDirection = 'column';
+    document.body.style.justifyContent = 'center';
+    document.body.style.alignItems = 'center';
     document.body.style.width = '100vw';
     document.body.style.height = DESIGN_H * escala + 'px';
     document.body.style.margin = '0';
@@ -19,10 +23,11 @@
 
     frame.style.width = DESIGN_W + 'px';
     frame.style.height = DESIGN_H + 'px';
-    frame.style.margin = '0 auto';
+    frame.style.margin = '0';
     frame.style.position = 'static';
     frame.style.left = 'auto';
     frame.style.right = 'auto';
+    frame.style.flexShrink = '0';
     frame.style.transformOrigin = 'top center';
     frame.style.transform = 'scale(' + escala + ')';
   }
