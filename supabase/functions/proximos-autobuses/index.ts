@@ -211,6 +211,7 @@ serve(async (req) => {
       numero: numeroDe(r ? r.nombre : ''),
       destino: r ? r.destino : null,
       ruta: r ? r.nombre : null,
+      ruta_id: s.ruta_id,
       calendario: s.tipo_dia,
     })
   }

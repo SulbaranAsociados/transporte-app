@@ -63,7 +63,7 @@
 
     <!-- Ver Ruta button -->
     <div class="absolute left-[284px] top-[261px]">
-      <button class="neumorphic w-[80px] h-[40px] flex items-center justify-center">
+      <button id="btnVerRuta" disabled class="neumorphic w-[80px] h-[40px] flex items-center justify-center">
         <span class="text-[#808080] font-sans text-sm">Ver Ruta</span>
       </button>
     </div>
@@ -114,6 +114,7 @@
     const horaSalida = document.getElementById('horaSalida');
     const faltan = document.getElementById('faltan');
     const proximosLista = document.getElementById('proximosLista');
+    const btnVerRuta = document.getElementById('btnVerRuta');
 
     const diferenciaHoras = (desde, hasta) => {
       const [h1, m1] = desde.split(':').map(Number);
@@ -154,6 +155,15 @@
         const primero = data.autobuses[0];
         horaSalida.textContent = primero.hora;
         faltan.textContent = diferenciaHoras(ahoraHHMM(), primero.hora);
+
+        btnVerRuta.disabled = false;
+        btnVerRuta.addEventListener('click', () => {
+          const rutaParams = new URLSearchParams({ parada_id: paradaId });
+          if (destino) rutaParams.set('destino', destino);
+          if (primero.ruta_id) rutaParams.set('ruta_id', primero.ruta_id);
+          if (primero.hora) rutaParams.set('hora', primero.hora);
+          window.location.href = `ruta-bus.html?${rutaParams.toString()}`;
+        });
 
         proximosLista.innerHTML = '';
         data.autobuses.forEach((a) => {

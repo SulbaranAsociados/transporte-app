@@ -51,14 +51,10 @@
       <span class="text-app-gray text-[24px] font-medium font-narrow">Ruta:</span>
     </div>
 
-    <!-- Rectangle area -->
+    <!-- Rectangle area - paradas list -->
     <div class="absolute left-[37px] top-[264px]">
-      <div class="w-[357px] h-[510px] bg-app-input border border-app-border rounded-[30px] px-8 flex flex-col items-center justify-center gap-2">
-        <span class="text-app-gray text-lg font-narrow">[Parada 1] / 00:00</span>
-        <span class="text-app-gray text-lg font-narrow">[Parada 2] / 00:00</span>
-        <span class="text-app-gray text-lg font-narrow">[Parada 3] / 00:00</span>
-        <span class="text-app-gray text-lg font-narrow">[Parada 4] / 00:00</span>
-        <span class="text-app-gray text-lg font-narrow">[Parada 5] / 00:00</span>
+      <div id="listaParadas" class="w-[357px] h-[510px] bg-app-input border border-app-border rounded-[30px] px-8 py-5 flex flex-col gap-2 overflow-y-auto">
+        <span class="text-app-gray text-lg font-narrow text-center">Cargando ruta...</span>
       </div>
     </div>
 
@@ -74,16 +70,16 @@
     <!-- Valores de la consulta -->
     <div class="absolute left-[224px] top-[149px]">
       <div class="flex flex-col gap-0.5 text-left">
-        <span class="text-app-gray text-base font-narrow font-medium leading-tight">Población</span>
-        <span class="text-app-gray text-base font-narrow font-medium leading-tight">000000</span>
-        <span class="text-app-gray text-base font-narrow font-medium leading-tight">00:00</span>
+        <span id="valorDestino" class="text-app-gray text-base font-narrow font-medium leading-tight">...</span>
+        <span id="valorAutobus" class="text-app-gray text-base font-narrow font-medium leading-tight">...</span>
+        <span id="valorHora" class="text-app-gray text-base font-narrow font-medium leading-tight">...</span>
       </div>
     </div>
 
     <!-- Botón Anterior -->
     <div class="absolute left-[155px] top-[802px]">
       <button class="w-[130px] h-[45px] bg-app-bg rounded-[20px] shadow-neu
-                     flex items-center justify-center gap-2">
+                     flex items-center justify-center gap-2" onclick="history.back()">
         <svg class="w-4 h-3.5 text-app-gray" viewBox="0 0 14 12" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M0.5 6H12.5M0.5 6L5.5 1M0.5 6L5.5 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -97,6 +93,67 @@
     </div>
 
   </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const paradaId = params.get('parada_id') || '';
+    const destino = params.get('destino') || '';
+    const rutaId = params.get('ruta_id') || '';
+    const hora    = params.get('hora')    || '';
+
+    const valorDestino = document.getElementById('valorDestino');
+    const valorAutobus = document.getElementById('valorAutobus');
+    const valorHora    = document.getElementById('valorHora');
+    const listaParadas = document.getElementById('listaParadas');
+
+    const nombreRuta = (ruta) => {
+      const m = (ruta || '').match(/Autobus\s+([0-9]+)/i);
+      return m ? `Autobús ${m[1]}` : (ruta || '');
+    };
+
+    valorDestino.textContent = destino || '-';
+    valorAutobus.textContent = rutaId ? '...' : '-';
+
+    if (!paradaId) {
+      listaParadas.innerHTML = '<span class="text-app-gray text-lg font-narrow text-center">No se ha especificado la parada.</span>';
+    } else {
+      (async () => {
+        try {
+          const body = { parada_id: paradaId };
+          if (destino) body.destino = destino;
+          if (rutaId) body.ruta_id = rutaId;
+          if (hora) body.hora = hora;
+
+          const data = await llamarFuncion('ruta-bus', { body });
+
+          const paradas = data.paradas || [];
+          if (paradas.length === 0) {
+            listaParadas.innerHTML = '<span class="text-app-gray text-lg font-narrow text-center">No se encontraron paradas.</span>';
+            return;
+          }
+
+          valorDestino.textContent = destino || data.destino || '-';
+          valorAutobus.textContent = nombreRuta(data.ruta);
+          valorHora.textContent    = hora || paradas[0].hora || '...';
+
+          listaParadas.innerHTML = '';
+          paradas.forEach((p) => {
+            const fila = document.createElement('div');
+            fila.className = 'flex justify-between items-baseline w-full';
+            fila.innerHTML = `
+              <span class="text-app-gray text-lg font-narrow">${p.parada}</span>
+              <span class="text-app-gray text-lg font-narrow font-medium">${p.hora}</span>
+            `;
+            listaParadas.appendChild(fila);
+          });
+        } catch (err) {
+          console.error(err);
+          listaParadas.innerHTML = '<span class="text-red-500 text-lg font-narrow text-center">Error al cargar la ruta.</span>';
+        }
+      })();
+    }
+  </script>
 
   <script src="js/adaptar.js?v=5"></script>
 </body>
