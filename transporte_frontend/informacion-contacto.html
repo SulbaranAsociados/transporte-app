@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Información y Contacto</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;500;600;700&family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg: '#e6e6e6',
+            card: '#dcdcdc',
+            'card-border': '#c5c5c5',
+            gray: '#808080',
+            logo: '#B1B2B5',
+            green: '#84b648',
+          },
+          fontFamily: {
+            sans: ['"Roboto Condensed"', 'sans-serif'],
+            display: ['"Barlow Condensed"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      -webkit-font-smoothing: antialiased;
+      background-color: #e6e6e6;
+    }
+    .neumorphic {
+      background: #e6e6e6;
+      box-shadow: 6px -6px 10px rgba(255, 255, 255, 0.5), -6px 6px 10px rgba(0, 0, 0, 0.15);
+      border-radius: 20px;
+    }
+    .campo {
+      background: #fff;
+      border: 1px solid #c5c5c5;
+      border-radius: 14px;
+      width: 100%;
+      padding: 10px 14px;
+      font-size: 17px;
+      color: #3c3c3c;
+      outline: none;
+    }
+    .campo-corto {
+      padding: 5px 14px;
+    }
+    .campo:focus {
+      border-color: #84b648;
+      box-shadow: 0 0 0 2px rgba(132, 182, 72, 0.25);
+    }
+    .campo::placeholder {
+      color: #a0a0a0;
+    }
+  </style>
+</head>
+<body class="flex justify-center min-h-screen">
+
+  <div class="w-full max-w-[430px] min-h-[932px] relative">
+
+    <!-- Logo -->
+    <img src="logo.png" alt="Transporte" class="absolute left-[125px] top-[45px] w-[197px] h-[99px] object-contain">
+
+    <!-- Título -->
+    <div class="absolute top-[145px] w-full text-center">
+      <span class="text-[#808080] font-sans text-lg">Información y Contacto</span>
+    </div>
+
+    <!-- Enlaces legales -->
+    <div class="absolute top-[190px] w-full text-center space-y-1">
+      <a href="#" class="text-[#808080] font-sans text-base underline decoration-[#808080]/40 underline-offset-2 block">Quienes somos</a>
+      <a href="#" class="text-[#808080] font-sans text-base underline decoration-[#808080]/40 underline-offset-2 block">Aviso Legal</a>
+      <a href="#" class="text-[#808080] font-sans text-base underline decoration-[#808080]/40 underline-offset-2 block">Políticas de privacidad</a>
+      <a href="#" class="text-[#808080] font-sans text-base underline decoration-[#808080]/40 underline-offset-2 block">Políticas de cookies</a>
+    </div>
+
+    <!-- Botón Anterior -->
+    <div class="absolute left-[150px] top-[875px]">
+      <button id="btnAnterior" class="neumorphic w-[130px] h-[45px] flex items-center justify-center gap-2">
+        <img src="atras.svg" alt="" class="w-[14px] h-3 object-contain">
+        <span class="text-[#808080] font-sans text-base">Anterior</span>
+      </button>
+    </div>
+
+    <!-- Formulario de contacto -->
+    <div class="absolute left-[39px] top-[320px] w-[351px] bg-[#dcdcdc] rounded-[30px] px-6 py-6">
+      <p class="text-black font-display text-xl mb-4 text-center">Envíanos tu consulta</p>
+
+      <form id="formContacto" class="space-y-3" novalidate>
+        <div>
+          <label for="nombre" class="text-[#808080] font-sans text-sm block mb-1">Nombre y apellidos</label>
+          <input id="nombre" name="nombre" type="text" placeholder="Escribe tu nombre" class="campo campo-corto" required>
+        </div>
+
+        <div>
+          <label for="tel" class="text-[#808080] font-sans text-sm block mb-1">Teléfono</label>
+          <input id="tel" name="tel" type="tel" placeholder="Ej.: 977 00 00 00" class="campo campo-corto">
+        </div>
+
+        <div>
+          <label for="email" class="text-[#808080] font-sans text-sm block mb-1">Correo electrónico</label>
+          <input id="email" name="email" type="email" placeholder="tucorreo@ejemplo.com" class="campo campo-corto">
+        </div>
+
+        <div>
+          <label for="mensaje" class="text-[#808080] font-sans text-sm block mb-1">Mensaje</label>
+          <textarea id="mensaje" name="mensaje" rows="4" placeholder="Cuéntanos tu consulta o incidencia" class="campo resize-none" required></textarea>
+        </div>
+
+        <button type="submit" id="btnEnviar" class="neumorphic w-full h-[40px] flex items-center justify-center">
+          <span class="text-[#808080] font-sans text-lg font-semibold">Enviar</span>
+        </button>
+      </form>
+
+      <!-- Confirmación de envío -->
+      <div id="confirmacion" class="hidden mt-4 p-3 border border-[#84b648] bg-white rounded-[14px] text-center">
+        <p class="text-[#3c3c3c] font-sans text-base font-semibold">¡Mensaje enviado!</p>
+        <p class="text-[#808080] font-sans text-sm mt-1">Hemos recibido tu consulta. Te responderemos en breve.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    document.getElementById('btnAnterior').addEventListener('click', () => {
+      history.back();
+    });
+
+    const form = document.getElementById('formContacto');
+    const confirmacion = document.getElementById('confirmacion');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const nombre = document.getElementById('nombre').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const mensaje = document.getElementById('mensaje').value.trim();
+
+      if (!nombre) {
+        document.getElementById('nombre').focus();
+        return;
+      }
+      if (!mensaje) {
+        document.getElementById('mensaje').focus();
+        return;
+      }
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        document.getElementById('email').focus();
+        return;
+      }
+
+      form.classList.add('hidden');
+      confirmacion.classList.remove('hidden');
+    });
+  </script>
+
+  <script src="js/adaptar.js?v=5"></script>
+</body>
+</html>

@@ -108,8 +108,48 @@ serve(async (req) => {
   // Con destino: solo paradas por donde va a pasar un autobús hacia el destino hoy.
   const { hoy } = calcularDiaActual()
   const ahoraMins = horaEnMinutosLocal()
+  const LOCALIDADES = { 'la pineda': 'la pineda', 'salou': 'salou', 'vila-seca': 'vila-seca', 'tarragona': 'tarragona', 'cambrils': 'cambrils', 'reus': 'reus', 'barcelona': 'barcelona', 'cap salou': 'cap salou' }
 
-  // ¿Festivo hoy?
+  // 1. Paradas objetivo del destino: por localidad, o terminales para los destinos especiales.
+  const destLoc = destino ? LOCALIDADES[destino.toLowerCase()] : null
+  const destParadas = new Set()
+  if (destLoc) {
+    for (const p of paradasInfo.values()) {
+      if (String(p.localidad || '').toLowerCase() === destLoc) destParadas.add(p.id_parada)
+    }
+  }
+  if (destParadas.size === 0) {
+    // Destino especial (Est. del Camp, Aero. Reus...): la última parada de las rutas que terminan allí.
+    const { data: rutasTerm, error: errRutasT } = await supabase
+      .from('rutas')
+      .select('id_ruta')
+      .eq('destino', destino)
+      .limit(50)
+    if (errRutasT) return json({ error: errRutasT.message }, 400)
+    const termIds = (rutasTerm || []).map((r) => r.id_ruta)
+    if (termIds.length === 0) return json({ error: `No hay servicio hacia ${destino}.` }, 404)
+    for (const rid of termIds) {
+      const { data: ultimo, error: errUlt } = await supabase
+        .from('secuencia_desfaces')
+        .select('parada_id')
+        .eq('ruta_id', rid)
+        .order('orden_secuencia', { ascending: false })
+        .limit(1)
+      if (!errUlt && ultimo && ultimo[0]) destParadas.add(ultimo[0].parada_id)
+    }
+    if (destParadas.size === 0) return json({ error: `No se encontró la parada final hacia ${destino}.` }, 404)
+  }
+
+  // 2. Rutas que pasan por alguna parada del destino
+  const { data: secuRutas, error: errSecR } = await supabase
+    .from('secuencia_desfaces')
+    .select('ruta_id')
+    .in('parada_id', [...destParadas])
+  if (errSecR) return json({ error: errSecR.message }, 400)
+  const rutaIds = [...new Set((secuRutas || []).map((s) => s.ruta_id))]
+  if (rutaIds.length === 0) return json({ error: `No hay servicio hacia ${destino}.` }, 404)
+
+  // 3. ¿Festivo hoy?
   const { data: festivos, error: errFestivos } = await supabase
     .from('festivos')
     .select('id')
@@ -118,27 +158,14 @@ serve(async (req) => {
   if (errFestivos) return json({ error: errFestivos.message }, 400)
   const esFestivo = (festivos || []).length > 0
 
-  // Calendarios activos hoy
+  // 4. Calendarios activos hoy
   const { data: calendarios, error: errCal } = await supabase
     .from('calendario')
     .select('*')
   if (errCal) return json({ error: errCal.message }, 400)
   const activos = getCalendariosActivos(calendarios || [], esFestivo)
 
-  // Rutas hacia el destino
-  const { data: rutas, error: errRutas } = await supabase
-    .from('rutas')
-    .select('id_ruta')
-    .eq('destino', destino)
-    .limit(50)
-  if (errRutas) return json({ error: errRutas.message }, 400)
-  const rutaIds = (rutas || []).map((r) => r.id_ruta)
-
-  if (rutaIds.length === 0) {
-    return json({ error: `No hay servicio hacia ${destino}.` }, 404)
-  }
-
-  // Salidas de hoy según calendario
+  // 5. Salidas de hoy según calendario
   const salidas = []
   for (let off = 0; off < 5000; off += 998) {
     const { data: lote, error: errSal } = await supabase
@@ -156,12 +183,12 @@ serve(async (req) => {
     return json({ error: `Hoy no hay servicio hacia ${destino}.` }, 404)
   }
 
-  // Secuencias: paradas y desfases por ruta
+  // 6. Secuencia completa de esas rutas, ordenada por orden_secuencia
   const secu = []
   for (let off = 0; off < 8000; off += 998) {
     const { data: lote, error: errSec } = await supabase
       .from('secuencia_desfaces')
-      .select('ruta_id, parada_id, minutos_desde_origen')
+      .select('ruta_id, parada_id, minutos_desde_origen, orden_secuencia')
       .in('ruta_id', rutaIds)
       .range(off, off + 997)
     if (errSec) return json({ error: errSec.message }, 400)
@@ -169,7 +196,6 @@ serve(async (req) => {
     secu.push(...lote)
   }
 
-  // Desfase por (ruta, parada)
   const pasosPorRuta = new Map()
   for (const s of secu || []) {
     let lista = pasosPorRuta.get(s.ruta_id)
@@ -179,15 +205,23 @@ serve(async (req) => {
     }
     lista.push(s)
   }
+  for (const lista of pasosPorRuta.values()) {
+    lista.sort((a, b) => (a.orden_secuencia ?? 0) - (b.orden_secuencia ?? 0))
+  }
   const set = new Map(salidas.map((s) => [`${s.ruta_id}|${s.salida_origen}|${s.tipo_dia}`, s]))
 
-  // Paradas donde llegarán autobuses hacia el destino hoy (a partir de ahora)
+  // 7. Paradas candidatas: el autobús pasa hacia el destino (antes de la ÚLTIMA parada del destino).
   const conProximo = new Set()
   for (const s of set.values()) {
     const pasos = pasosPorRuta.get(s.ruta_id) || []
-    for (const paso of pasos) {
-      const llegada = aMinutos(s.salida_origen) + aMinutos(paso.minutos_desde_origen)
-      if (llegada >= ahoraMins) conProximo.add(paso.parada_id)
+    let maxDest = -1
+    for (let i = 0; i < pasos.length; i++) {
+      if (destParadas.has(pasos[i].parada_id)) maxDest = i
+    }
+    if (maxDest < 0) continue
+    for (let i = 0; i < maxDest; i++) {
+      const llegada = aMinutos(s.salida_origen) + aMinutos(pasos[i].minutos_desde_origen)
+      if (llegada >= ahoraMins) conProximo.add(pasos[i].parada_id)
     }
   }
 

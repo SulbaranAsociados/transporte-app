@@ -58,7 +58,7 @@
       <div class="mt-1 w-[200px] h-[71px] border border-white rounded-[20px] flex items-center justify-center bg-[linear-gradient(to_bottom,#E7E8E9_0%,rgba(177,178,181,0)_100%)]">
         <span id="horaSalida" class="text-[#3c3c3c] font-display font-bold text-[48px] leading-none">--:--</span>
       </div>
-      <p class="text-black font-sans text-lg mt-1 w-[200px] text-center">Faltan: <span id="faltan" class="text-xl font-bold">--:--</span> Horas</p>
+      <p class="text-black font-sans text-lg mt-1 w-[200px] text-center">Faltan: <span id="faltan" class="text-xl font-bold">--:--</span></p>
     </div>
 
     <!-- Ver Ruta button -->
@@ -99,7 +99,7 @@
 
     <!-- Footer -->
     <div class="absolute left-[134px] top-[872px]">
-      <span class="text-[#808080] font-sans text-base">Información y Contacto</span>
+      <a href="informacion-contacto.html" class="text-[#808080] font-sans text-base">Información y Contacto</a>
     </div>
 
   </div>
@@ -116,17 +116,41 @@
     const proximosLista = document.getElementById('proximosLista');
     const btnVerRuta = document.getElementById('btnVerRuta');
 
-    const diferenciaHoras = (desde, hasta) => {
-      const [h1, m1] = desde.split(':').map(Number);
-      const [h2, m2] = hasta.split(':').map(Number);
-      let diff = (h2 * 60 + m2) - (h1 * 60 + m1);
-      if (diff < 0) diff += 24 * 60;
-      return `${String(Math.floor(diff / 60)).padStart(2, '0')}:${String(diff % 60).padStart(2, '0')}`;
+    let autobuses = [];
+    let indiceActual = 0;
+    let intervaloCuenta = null;
+
+    const segundosHastaHora = (hhmm) => {
+      const [h, m] = hhmm.split(':').map(Number);
+      const ahora = new Date();
+      const ahoraSeg = ahora.getHours() * 3600 + ahora.getMinutes() * 60 + ahora.getSeconds();
+      let diff = (h * 3600 + m * 60) - ahoraSeg;
+      if (diff < 0) diff += 24 * 3600;
+      return diff;
     };
 
-    const ahoraHHMM = () => {
-      const d = new Date();
-      return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+    const formatoCuenta = (seg) => {
+      const hh = String(Math.floor(seg / 3600)).padStart(2, '0');
+      const mm = String(Math.floor((seg % 3600) / 60)).padStart(2, '0');
+      const ss = String(seg % 60).padStart(2, '0');
+      return `${hh}:${mm}:${ss}`;
+    };
+
+    const actualizarCuenta = () => {
+      if (indiceActual >= autobuses.length) {
+        faltan.textContent = '--:--';
+        horaSalida.textContent = '--:--';
+        if (intervaloCuenta) clearInterval(intervaloCuenta);
+        return;
+      }
+      const resto = segundosHastaHora(autobuses[indiceActual].hora);
+      if (resto <= 1) {
+        indiceActual += 1;
+        actualizarCuenta();
+        return;
+      }
+      horaSalida.textContent = autobuses[indiceActual].hora;
+      faltan.textContent = formatoCuenta(resto);
     };
 
     (async () => {
@@ -152,10 +176,10 @@
           return;
         }
 
-        const primero = data.autobuses[0];
-        horaSalida.textContent = primero.hora;
-        faltan.textContent = diferenciaHoras(ahoraHHMM(), primero.hora);
+        autobuses = data.autobuses;
+        indiceActual = 0;
 
+        const primero = autobuses[0];
         btnVerRuta.disabled = false;
         btnVerRuta.addEventListener('click', () => {
           const rutaParams = new URLSearchParams({ parada_id: paradaId });
@@ -166,7 +190,7 @@
         });
 
         proximosLista.innerHTML = '';
-        data.autobuses.forEach((a) => {
+        autobuses.forEach((a) => {
           const fila = document.createElement('div');
           fila.className = 'flex items-baseline gap-1.5';
           fila.innerHTML = `
@@ -176,6 +200,9 @@
           `;
           proximosLista.appendChild(fila);
         });
+
+        actualizarCuenta();
+        intervaloCuenta = setInterval(actualizarCuenta, 1000);
       } catch (err) {
         console.error(err);
         horaSalida.textContent = '--:--';
