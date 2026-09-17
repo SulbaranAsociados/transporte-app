@@ -30,21 +30,47 @@ bot.on(['photo', 'video'], async (ctx) => {
 
     const { data: publicUrlData } = supabaseAdmin.storage.from('media_bucket').getPublicUrl(fileName);
     pendingUploads.set(ctx.chat.id, { file_url: publicUrlData.publicUrl, file_type: ctx.message.photo ? 'image' : 'video' });
-    ctx.reply('Archivo recibido. Envía la URL de destino.');
+    ctx.reply('Archivo recibido. Envía la URL de destino (o "-" para ninguna).');
 });
 
 bot.on('text', async (ctx) => {
     const pending = pendingUploads.get(ctx.chat.id);
-    if (!pending) return ctx.reply('Sube una imagen primero.');
+    if (!pending) return;
 
     await supabaseAdmin.from('media_content').insert({
         file_url: pending.file_url,
         file_type: pending.file_type,
-        target_url: ctx.message.text
+        target_url: ctx.message.text === '-' ? null : ctx.message.text,
+        orden: 0,
+        duration: 5
     });
 
     pendingUploads.delete(ctx.chat.id);
     ctx.reply('¡Contenido guardado!');
+});
+
+// Comandos de gestión
+bot.command('list', async (ctx) => {
+    const { data } = await supabaseAdmin.from('media_content').select('*').order('orden');
+    if (!data || data.length === 0) return ctx.reply('No hay contenido.');
+    let message = 'Contenido actual:\n';
+    data.forEach(item => message += `ID: ${item.id} | Orden: ${item.orden} | Duración: ${item.duration}s | URL: ${item.target_url || 'Ninguna'}\n`);
+    ctx.reply(message);
+});
+
+bot.command('delete', async (ctx) => {
+    const id = ctx.message.text.split(' ')[1];
+    if (!id) return ctx.reply('Uso: /delete <id>');
+    await supabaseAdmin.from('media_content').delete().eq('id', id);
+    ctx.reply(`Contenido ID ${id} eliminado.`);
+});
+
+bot.command('set', async (ctx) => {
+    const args = ctx.message.text.split(' ');
+    if (args.length < 4) return ctx.reply('Uso: /set <id> <orden|duration|target_url> <valor>');
+    const [_, id, prop, value] = args;
+    await supabaseAdmin.from('media_content').update({ [prop]: value }).eq('id', id);
+    ctx.reply(`Actualizado: ${prop} = ${value} para ID ${id}`);
 });
 
 bot.launch().then(() => console.log('Bot activo y escuchando...'));
